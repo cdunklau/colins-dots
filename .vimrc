@@ -22,8 +22,8 @@ function DoPHPCommands()
 set softtabstop=3
 set shiftwidth=3
 endfunction
-"specifics for html and xml, 2-space tabs
-au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd call DoHTMLCommands()
+"specifics for html, xml, and css, 2-space tabs
+au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd,*.css call DoHTMLCommands()
 function DoHTMLCommands()
 set softtabstop=2
 set shiftwidth=2
