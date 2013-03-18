@@ -1,0 +1,2 @@
+# Startup file for python interactive interpreter
+export PYTHONSTARTUP=$HOME/.pythonrc
