@@ -25,8 +25,8 @@ function DoPHPCommands()
 set softtabstop=3
 set shiftwidth=3
 endfunction
-"specifics for html, xml, and css, 2-space tabs
-au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd,*.css,*.less call DoHTMLCommands()
+"specifics for html, xml, js, and css, 2-space tabs
+au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd,*.js,*.css,*.less call DoHTMLCommands()
 function DoHTMLCommands()
 set softtabstop=2
 set shiftwidth=2
@@ -38,4 +38,10 @@ set noexpandtab
 set tabstop=8
 set softtabstop=8
 set shiftwidth=8
+endfunction
+"line wrapping for ReStructuredText
+au BufNewFile,BufRead *.rst call DoRSTCommands()
+function DoRSTCommands()
+set tw=79
+set formatoptions+=t
 endfunction
