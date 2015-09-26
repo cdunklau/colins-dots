@@ -45,3 +45,5 @@ function DoRSTCommands()
 set tw=79
 set formatoptions+=t
 endfunction
+"Apply Django syntax to .jinja2 files
+au BufNewFile,BufRead *.jinja2 set filetype=django
