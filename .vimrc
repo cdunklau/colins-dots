@@ -1,4 +1,5 @@
 set nocompatible
+set incsearch
 set ruler
 set syntax=on
 syntax on
