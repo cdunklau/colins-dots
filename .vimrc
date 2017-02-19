@@ -1,4 +1,42 @@
 set nocompatible
+if has('nvim')
+    let g:python_host_prog = expand('~/.nvimpython/bin/python')
+    let g:python3_host_prog = expand('~/.nvimpython3/bin/python3')
+endif
+" START Stuff for Vundle https://github.com/VundleVim/Vundle.vim
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+Plugin 'Valloric/YouCompleteMe'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList          - list configured plugins
+" :PluginInstall(!)    - install (update) plugins
+" :PluginSearch(!) foo - search (or refresh cache first) for foo
+" :PluginClean(!)      - confirm (or auto-approve) removal of unused plugins
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+" END Stuff for Vundle
+
+" YouCompleteMe config
+" Make YCM look for the first python executable in PATH so that pyenv works
+let g:ycm_server_python_interpreter = 'python'
+
+
+
 set incsearch
 set ruler
 set syntax=on
