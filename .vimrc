@@ -12,7 +12,7 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -33,14 +33,14 @@ filetype plugin indent on    " required
 
 " YouCompleteMe config
 " Make YCM look for the first python executable in PATH so that pyenv works
-let g:ycm_server_python_interpreter = 'python'
+" let g:ycm_server_python_interpreter = 'python'
 
 
 
 set incsearch
 set ruler
 set syntax=on
-syntax on
+:syntax on
 set number
 set wrap lbr
 "Folding settings
