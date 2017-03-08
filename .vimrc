@@ -41,6 +41,7 @@ set incsearch
 set ruler
 set syntax=on
 :syntax on
+set backspace=2 " make backspace work like most other apps
 set number
 set wrap lbr
 "Folding settings
