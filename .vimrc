@@ -82,8 +82,19 @@ endfunction
 "line wrapping for ReStructuredText
 au BufNewFile,BufRead *.rst call DoRSTCommands()
 function DoRSTCommands()
+set tabstop=8
+set softtabstop=4
+set shiftwidth=4
+set expandtab
 set tw=79
 set formatoptions+=t
 endfunction
-"Apply Django syntax to .jinja2 files
-au BufNewFile,BufRead *.jinja2 set filetype=django
+"Apply Django syntax to .jinja and .jinja2 files
+au BufNewFile,BufRead *.jinja,*.jinja2 set filetype=django
+"sls files are salt states in yaml format
+au BufNewFile,BufRead *.sls call DoSLSCommands()
+function DoSLSCommands()
+set softtabstop=2
+set shiftwidth=2
+set syntax=yaml
+endfunction
