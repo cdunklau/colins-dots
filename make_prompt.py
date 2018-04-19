@@ -77,14 +77,19 @@ def foreground_colored(colornum, *contents):
 
 
 ps1_contents = ''.join([
-    CODE.USERNAME, '@', CODE.HOSTNAME_SHORT, ' ',
-    CODE.FMT_NONE,
+    '[',
+    foreground_colored(COLOR.CYAN, CODE.USERNAME),
+    '@',
+    foreground_colored(COLOR.BLUE, CODE.HOSTNAME_SHORT),
+    '] ',
     foreground_colored(COLOR.GREEN, CODE.CWD_HOMEABBR),
     CODE.NEWLINE,
-    ' ', CODE.FMT_NONE,
+    ' ',
     foreground_colored(COLOR.RED, r'\$(_parse_git_branch)'),
-    ' ', CODE.DOLLAR_OR_HASH, ' ',
-    CODE.FMT_NONE,
+    ' ',
+    CODE.DOLLAR_OR_HASH,
+    ' ',
+    CODE.FMT_NONE,  # Just be sure it's all reset
 ])
 
 
@@ -109,6 +114,7 @@ def show_effects():
         with open(bashinit, 'w') as f:
             f.write('source ~/.bashrc\n')
             f.write(bashinit_contents)
+            f.write('export PS1="TESTPROMPT $PS1"\n')
         subprocess.call(['/bin/bash', '--rcfile', bashinit, '-i'])
     finally:
         os.remove(bashinit)

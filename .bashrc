@@ -120,7 +120,7 @@ _parse_git_branch() {
         sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/';
 };
 
-export PS1="\u@\h \[$(tput sgr0)\]\[\033[38;5;2m\]\w\[$(tput sgr0)\]\n \[$(tput sgr0)\]\[\033[38;5;1m\]\$(_parse_git_branch)\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
+export PS1="[\[\033[38;5;6m\]\u\[$(tput sgr0)\]@\[\033[38;5;4m\]\h\[$(tput sgr0)\]] \[\033[38;5;2m\]\w\[$(tput sgr0)\]\n \[\033[38;5;1m\]\$(_parse_git_branch)\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
 
 # Editor
 export EDITOR=vim
