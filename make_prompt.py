@@ -100,7 +100,6 @@ def show_effects():
     _, bashinit = tempfile.mkstemp()
     try:
         bashinit_contents = '\n'.join([
-            'source ~/.bashrc\n',
             parse_git_branch_function,
             'export PS1="{0}"\n'.format(ps1_contents),
         ])
@@ -108,6 +107,7 @@ def show_effects():
         print('Contents:\n')
         print(bashinit_contents)
         with open(bashinit, 'w') as f:
+            f.write('source ~/.bashrc\n')
             f.write(bashinit_contents)
         subprocess.call(['/bin/bash', '--rcfile', bashinit, '-i'])
     finally:

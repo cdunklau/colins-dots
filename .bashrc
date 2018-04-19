@@ -114,6 +114,14 @@ fi
 
 ## Custom stuff below
 
+# Prompt hack (see make_prompt.py in the colins-dots repo)
+_parse_git_branch() {
+    git branch --list 2> /dev/null |
+        sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/';
+};
+
+export PS1="\u@\h \[$(tput sgr0)\]\[\033[38;5;2m\]\w\[$(tput sgr0)\]\n \[$(tput sgr0)\]\[\033[38;5;1m\]\$(_parse_git_branch)\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
+
 # Editor
 export EDITOR=vim
 # Startup file for python interactive interpreter
