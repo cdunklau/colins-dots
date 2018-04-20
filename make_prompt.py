@@ -21,6 +21,7 @@ class Namespace:
 #   scriptfile.write(contents)
 CODE = Namespace()
 CODE.ESC = r'\033'
+CODE.TIME_24 = r'\t'
 CODE.USERNAME = r'\u'
 CODE.HOSTNAME_SHORT = r'\h'
 CODE.CWD_HOMEABBR = r'\w'
@@ -90,9 +91,10 @@ def colored(colornum, *contents, bg=False, forprompt=False):
 
 
 ps1_contents = ''.join([
-    # First line: user, host, cwd
+    # First line: time, user, host, cwd
     color_start(COLOR.BLACK, forprompt=True),
-    '[',
+    CODE.TIME_24,
+    ' [',
     color_start(COLOR.CYAN, forprompt=True),
     CODE.USERNAME,
     CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
