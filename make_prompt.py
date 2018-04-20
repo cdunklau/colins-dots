@@ -91,10 +91,9 @@ def colored(colornum, *contents, bg=False, forprompt=False):
 
 
 ps1_contents = ''.join([
-    # First line: time, user, host, cwd
+    # First line: user, host, time, cwd
     color_start(COLOR.BLACK, forprompt=True),
-    CODE.TIME_24,
-    ' [',
+    '[',
     color_start(COLOR.CYAN, forprompt=True),
     CODE.USERNAME,
     CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
@@ -103,6 +102,8 @@ ps1_contents = ''.join([
     CODE.HOSTNAME_SHORT,
     color_start(COLOR.BLACK, forprompt=True),
     '] ',
+    CODE.TIME_24,
+    ' ',
     color_start(COLOR.GREEN, forprompt=True),
     CODE.CWD_HOMEABBR,
     CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
