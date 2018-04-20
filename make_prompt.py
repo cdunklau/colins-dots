@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import sys
 import shlex
 import subprocess
 import tempfile
@@ -33,6 +34,14 @@ CODE.FMT_NONE = '$(tput sgr0)'
 CODE.FMT_NONE_FORPROMPT = (
     CODE.NONPRINT_START + CODE.FMT_NONE + CODE.NONPRINT_END
 )
+CODE.FMT_DEFAULT_FOREGROUND = CODE.ESC + '[39m'
+CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT = (
+    CODE.NONPRINT_START + CODE.FMT_DEFAULT_FOREGROUND + CODE.NONPRINT_END
+)
+CODE.FMT_DEFAULT_BACKGROUND = CODE.ESC + '[49m'
+CODE.FMT_DEFAULT_BACKGROUND_FORPROMPT = (
+    CODE.NONPRINT_START + CODE.FMT_DEFAULT_BACKGROUND + CODE.NONPRINT_END
+)
 
 
 COLOR = Namespace()
@@ -44,7 +53,7 @@ COLOR.YELLOW = 3
 COLOR.BLUE = 4
 COLOR.MAGENTA = 5
 COLOR.CYAN = 6
-COLOR.GRAY = 7
+COLOR.WHITE = 7
 # High-intensity colors
 COLOR.BLACK_HI = 8
 COLOR.RED_HI = 9
@@ -53,7 +62,7 @@ COLOR.YELLOW_HI = 11
 COLOR.BLUE_HI = 12
 COLOR.MAGENTA_HI = 13
 COLOR.CYAN_HI = 14
-COLOR.GRAY_HI = 15
+COLOR.WHITE_HI = 15
 
 
 def color_start(colornum, bg=False, forprompt=False):
@@ -72,22 +81,34 @@ def color_start(colornum, bg=False, forprompt=False):
     return ''.join(parts)
 
 
-def foreground_colored(colornum, *contents, forprompt=False):
-    parts = [color_start(colornum, forprompt=forprompt)]
+# TODO: Remove this
+def colored(colornum, *contents, bg=False, forprompt=False):
+    parts = [color_start(colornum, forprompt=forprompt, bg=bg)]
     parts.extend(contents)
     parts.append(CODE.FMT_NONE_FORPROMPT if forprompt else CODE.FMT_NONE)
     return ''.join(parts)
 
 
 ps1_contents = ''.join([
+    # First line: user, host, cwd
+    color_start(COLOR.BLACK, forprompt=True),
     '[',
-    foreground_colored(COLOR.CYAN, CODE.USERNAME, forprompt=True),
+    color_start(COLOR.CYAN, forprompt=True),
+    CODE.USERNAME,
+    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
     '@',
-    foreground_colored(COLOR.BLUE, CODE.HOSTNAME_SHORT, forprompt=True),
+    color_start(COLOR.BLUE_HI, forprompt=True),
+    CODE.HOSTNAME_SHORT,
+    color_start(COLOR.BLACK, forprompt=True),
     '] ',
-    foreground_colored(COLOR.GREEN, CODE.CWD_HOMEABBR, forprompt=True),
+    color_start(COLOR.GREEN, forprompt=True),
+    CODE.CWD_HOMEABBR,
+    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
+    CODE.FMT_DEFAULT_BACKGROUND_FORPROMPT,
+    # Second (optional) line: git info
     r'\$(_git_info_line)',
     CODE.NEWLINE,
+    # Third line: prompt marker
     '--> ',
     CODE.DOLLAR_OR_HASH,
     ' ',
@@ -106,7 +127,7 @@ r'''_git_info_line() {{
     fi
 }};
 '''.format(
-    branch_name_varref_colored=foreground_colored(COLOR.RED, '$BRANCH_NAME'),
+    branch_name_varref_colored=colored(COLOR.RED, '$BRANCH_NAME'),
 )
 # TODO: Add the repo name (parent dir of .git or maybe two parents?)
 
@@ -129,5 +150,52 @@ def show_effects():
     finally:
         os.remove(bashinit)
 
+
+def test():
+    echoargs = [
+        ''.join([
+            'should be normal ',
+            color_start(COLOR.CYAN),
+            'should be cyan',
+            CODE.FMT_DEFAULT_FOREGROUND,
+            ' should be normal',
+        ]),
+        ''.join([
+            'should be normal ',
+            color_start(COLOR.CYAN, bg=True),
+            'should be cyan background',
+            CODE.FMT_DEFAULT_BACKGROUND,
+            ' should be normal',
+        ]),
+        ''.join([
+            'should be normal ',
+            color_start(COLOR.BLUE, bg=True),
+            color_start(COLOR.YELLOW),
+            'should be blue background, yellow foreground',
+            CODE.FMT_DEFAULT_FOREGROUND,
+            CODE.FMT_DEFAULT_BACKGROUND,
+            ' should be normal',
+        ]),
+    ]
+    for arg in echoargs:
+        echo = ' '.join([
+            '/bin/bash',
+            '-c',
+            """'echo -e "{0}"'""".format(arg),
+        ])
+        print('running', echo)
+        subprocess.call(echo, shell=True)
+
+
+def main():
+    _, arg = sys.argv
+    if arg == 'demo':
+        show_effects()
+    elif arg == 'test':
+        test()
+    else:
+        print('unknown arg "{0}"'.format(arg))
+        sys.exit(1)
+
 if __name__ == '__main__':
-    show_effects()
+    main()
