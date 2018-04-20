@@ -115,12 +115,17 @@ fi
 ## Custom stuff below
 
 # Prompt hack (see make_prompt.py in the colins-dots repo)
-_parse_git_branch() {
-    git branch --list 2> /dev/null |
-        sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/';
+_git_info_line() {
+    BRANCH_NAME=$(
+        git branch --list 2> /dev/null |
+            sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+    )
+    if [ -n "$BRANCH_NAME" ]; then
+        echo -e "\\ngit: branch=\033[38;5;1m$BRANCH_NAME$(tput sgr0)"
+    fi
 };
 
-export PS1="[\[\033[38;5;6m\]\u\[$(tput sgr0)\]@\[\033[38;5;4m\]\h\[$(tput sgr0)\]] \[\033[38;5;2m\]\w\[$(tput sgr0)\]\n \[\033[38;5;1m\]\$(_parse_git_branch)\[$(tput sgr0)\] \\$ \[$(tput sgr0)\]"
+export PS1="[\[\033[38;5;6m\]\u\[$(tput sgr0)\]@\[\033[38;5;4m\]\h\[$(tput sgr0)\]] \[\033[38;5;2m\]\w\[$(tput sgr0)\]\$(_git_info_line)\n--> \\$ \[$(tput sgr0)\]"
 
 # Editor
 export EDITOR=vim
