@@ -140,3 +140,9 @@ if [ -d "$PYENV_ROOT" ]; then
     export PATH="$PYENV_ROOT/bin:$PATH"
     eval "$(pyenv init -)"
 fi
+
+# Haskell stuff
+HASKELL_INIT="$HOME/.ghcup/env"
+if [ -f "$HASKELL_INIT" ]; then
+    source ${HASKELL_INIT}
+fi
