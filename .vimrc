@@ -94,8 +94,8 @@ endfunction
 "Apply Django syntax to .jinja and .jinja2 files
 au BufNewFile,BufRead *.jinja,*.jinja2 set filetype=django
 "sls files are salt states in yaml format
-au BufNewFile,BufRead *.sls call DoSLSCommands()
-function DoSLSCommands()
+au BufNewFile,BufRead *.sls,*.yml,*.yaml call DoYAMLCommands()
+function DoYAMLCommands()
 set softtabstop=2
 set shiftwidth=2
 set syntax=yaml
