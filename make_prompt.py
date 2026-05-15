@@ -1,136 +1,99 @@
 #!/usr/bin/env python3
 import os
 import sys
-import shlex
 import subprocess
 import tempfile
-import time
 
 
-class Namespace:
-    pass
-
-# These codes are the literal characters for PS1 as they would be written
-# in a bash script. Example:
-#   contents = 'export PS1="{0}@{1} {2} {3} "\n'.format(
-#       CODE.USERNAME,
-#       CODE.HOSTNAME_SHORT,
-#       CODE.CWD_HOMEABBR,
-#       CODE.DOLLAR_OR_HASH,
-#   )
-#   scriptfile.write(contents)
-CODE = Namespace()
-CODE.ESC = r'\033'
-CODE.TIME_24 = r'\t'
-CODE.USERNAME = r'\u'
-CODE.HOSTNAME_SHORT = r'\h'
-CODE.CWD_HOMEABBR = r'\w'
-CODE.NEWLINE = r'\n'
-CODE.DOLLAR_OR_HASH = r'\\$'
-
-CODE.NONPRINT_START = r'\['
-CODE.NONPRINT_END = r'\]'
-
-CODE.FMT_NONE = '$(tput sgr0)'
-CODE.FMT_NONE_FORPROMPT = (
-    CODE.NONPRINT_START + CODE.FMT_NONE + CODE.NONPRINT_END
-)
-CODE.FMT_DEFAULT_FOREGROUND = CODE.ESC + '[39m'
-CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT = (
-    CODE.NONPRINT_START + CODE.FMT_DEFAULT_FOREGROUND + CODE.NONPRINT_END
-)
-CODE.FMT_DEFAULT_BACKGROUND = CODE.ESC + '[49m'
-CODE.FMT_DEFAULT_BACKGROUND_FORPROMPT = (
-    CODE.NONPRINT_START + CODE.FMT_DEFAULT_BACKGROUND + CODE.NONPRINT_END
-)
+default_prompt = ''.join([
+    r'\[\e]0;\u@\h: \w\a\]',
+    r'${debian_chroot:+($debian_chroot)}',
+    # Reset/normal, bold, green foreground
+    r'\[\033[01;32m\]',
+    r'\u@\h',
+    # Reset/normal
+    r'\[\033[00m\]',
+    r':',
+    # Reset/normal, bold, blue foreground
+    r'\[\033[01;34m\]',
+    r'\w',
+    # Reset/normal
+    r'\[\033[00m\]',
+    r'\$ '
+])
 
 
-COLOR = Namespace()
-# Standard colors
-COLOR.BLACK = 0
-COLOR.RED = 1
-COLOR.GREEN = 2
-COLOR.YELLOW = 3
-COLOR.BLUE = 4
-COLOR.MAGENTA = 5
-COLOR.CYAN = 6
-COLOR.WHITE = 7
-# High-intensity colors
-COLOR.BLACK_HI = 8
-COLOR.RED_HI = 9
-COLOR.GREEN_HI = 10
-COLOR.YELLOW_HI = 11
-COLOR.BLUE_HI = 12
-COLOR.MAGENTA_HI = 13
-COLOR.CYAN_HI = 14
-COLOR.WHITE_HI = 15
+NONPRINT_START = r'\['
+NONPRINT_END = r'\]'
+CSI = r'\033['
 
 
-def color_start(colornum, bg=False, forprompt=False):
-    if not 0 <= colornum <= 255:
-        raise ValueError('color num must be between 0 and 255 (inclusive)')
-    parts = [CODE.NONPRINT_START] if forprompt else []
-    parts.extend([
-        CODE.ESC,
-        '[{fgbgcode};5;{colornum}m'.format(
-            colornum=colornum,
-            fgbgcode=48 if bg else 38,
-        ),
-    ])
-    if forprompt:
-        parts.append(CODE.NONPRINT_END)
-    return ''.join(parts)
+def csi(*contents):
+    return CSI + ''.join(contents)
+
+def nonprint(*contents):
+    return ''.join([NONPRINT_START, ''.join(contents), NONPRINT_END])
 
 
-# TODO: Remove this
-def colored(colornum, *contents, bg=False, forprompt=False):
-    parts = [color_start(colornum, forprompt=forprompt, bg=bg)]
-    parts.extend(contents)
-    parts.append(CODE.FMT_NONE_FORPROMPT if forprompt else CODE.FMT_NONE)
-    return ''.join(parts)
+CSI_RESET_BOLD_RED_FG = csi('01;31m')
+CSI_RESET_BOLD_GREEN_FG = csi('01;32m')
+CSI_RESET_BOLD_BLUE_FG = csi('01;34m')
+CSI_RESET = csi('00m')
+
+NPCSI_RESET_BOLD_RED_FG = nonprint(CSI_RESET_BOLD_RED_FG)
+NPCSI_RESET_BOLD_GREEN_FG = nonprint(CSI_RESET_BOLD_GREEN_FG)
+NPCSI_RESET_BOLD_BLUE_FG = nonprint(CSI_RESET_BOLD_BLUE_FG)
+NPCSI_RESET = nonprint(CSI_RESET)
+
+
+ESCAPE_TIME_24 = r'\t'
+ESCAPE_USERNAME = r'\u'
+ESCAPE_HOSTNAME_SHORT = r'\h'
+ESCAPE_CWD_HOMEABBR = r'\w'
+ESCAPE_NEWLINE = r'\n'
+ESCAPE_DOLLAR_OR_HASH = r'\\$'
 
 
 ps1_contents = ''.join([
     # Nonprintable: set the window name for xterm
-    CODE.NONPRINT_START,
-    # Sends an "os command" to the xterm to set the window name.
-    r'\e]0;',
-    CODE.USERNAME,
-    '@',
-    CODE.HOSTNAME_SHORT,
-    ': ',
-    CODE.CWD_HOMEABBR,
-    # Ends the "os command"
-    r'\a',
-    CODE.NONPRINT_END,
+    nonprint(
+        # Sends an "os command" to the xterm to set the window name.
+        r'\e]0;',
+        ESCAPE_USERNAME,
+        '@',
+        ESCAPE_HOSTNAME_SHORT,
+        ': ',
+        ESCAPE_CWD_HOMEABBR,
+        # Ends the "os command"
+        r'\a',
+    ),
 
     # First line: user, host, time, cwd
-    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
+    NPCSI_RESET,
     '[',
-    color_start(COLOR.CYAN, forprompt=True),
-    CODE.USERNAME,
-    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
+    NPCSI_RESET_BOLD_GREEN_FG,
+    ESCAPE_USERNAME,
+    NPCSI_RESET,
     '@',
-    color_start(COLOR.BLUE_HI, forprompt=True),
-    CODE.HOSTNAME_SHORT,
-    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
+    NPCSI_RESET_BOLD_GREEN_FG,
+    ESCAPE_HOSTNAME_SHORT,
+    NPCSI_RESET,
     '] ',
-    CODE.TIME_24,
+    ESCAPE_TIME_24,
     ' ',
-    color_start(COLOR.GREEN, forprompt=True),
-    CODE.CWD_HOMEABBR,
-    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
-    CODE.FMT_DEFAULT_BACKGROUND_FORPROMPT,
+    NPCSI_RESET_BOLD_BLUE_FG,
+    ESCAPE_CWD_HOMEABBR,
+    NPCSI_RESET,
 
     # Second (optional) line: git info
     r'\$(_git_info_line)',
-    CODE.NEWLINE,
+    ESCAPE_NEWLINE,
 
     # Third line: prompt marker
     '--> ',
-    CODE.DOLLAR_OR_HASH,
+    ESCAPE_DOLLAR_OR_HASH,
     ' ',
-    CODE.FMT_NONE_FORPROMPT,  # Just be sure it's all reset
+    NPCSI_RESET,  # Just be sure it's all reset
 ])
 
 
@@ -141,11 +104,15 @@ r'''_git_info_line() {{
             sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
     )
     if [ -n "$BRANCH_NAME" ]; then
-        echo -e "\\ngit: branch={branch_name_varref_colored}"
+        echo -e "\\ngit: branch={branch_name_varref}"
     fi
 }};
 '''.format(
-    branch_name_varref_colored=colored(COLOR.RED, '$BRANCH_NAME'),
+    branch_name_varref=''.join([
+        CSI_RESET_BOLD_RED_FG,
+        '$BRANCH_NAME',
+        CSI_RESET,
+    ])
 )
 # TODO: Add the repo name (parent dir of .git or maybe two parents?)
 
@@ -169,48 +136,10 @@ def show_effects():
         os.remove(bashinit)
 
 
-def test():
-    echoargs = [
-        ''.join([
-            'should be normal ',
-            color_start(COLOR.CYAN),
-            'should be cyan',
-            CODE.FMT_DEFAULT_FOREGROUND,
-            ' should be normal',
-        ]),
-        ''.join([
-            'should be normal ',
-            color_start(COLOR.CYAN, bg=True),
-            'should be cyan background',
-            CODE.FMT_DEFAULT_BACKGROUND,
-            ' should be normal',
-        ]),
-        ''.join([
-            'should be normal ',
-            color_start(COLOR.BLUE, bg=True),
-            color_start(COLOR.YELLOW),
-            'should be blue background, yellow foreground',
-            CODE.FMT_DEFAULT_FOREGROUND,
-            CODE.FMT_DEFAULT_BACKGROUND,
-            ' should be normal',
-        ]),
-    ]
-    for arg in echoargs:
-        echo = ' '.join([
-            '/bin/bash',
-            '-c',
-            """'echo -e "{0}"'""".format(arg),
-        ])
-        print('running', echo)
-        subprocess.call(echo, shell=True)
-
-
 def main():
     _, arg = sys.argv
     if arg == 'demo':
         show_effects()
-    elif arg == 'test':
-        test()
     else:
         print('unknown arg "{0}"'.format(arg))
         sys.exit(1)
