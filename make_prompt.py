@@ -69,8 +69,6 @@ ps1_contents = ''.join([
     ),
 
     # First line: user, host, time, cwd
-    NPCSI_RESET,
-    '[',
     NPCSI_RESET_BOLD_GREEN_FG,
     ESCAPE_USERNAME,
     NPCSI_RESET,
@@ -78,7 +76,7 @@ ps1_contents = ''.join([
     NPCSI_RESET_BOLD_GREEN_FG,
     ESCAPE_HOSTNAME_SHORT,
     NPCSI_RESET,
-    '] ',
+    ' ',
     ESCAPE_TIME_24,
     ' ',
     NPCSI_RESET_BOLD_BLUE_FG,
