@@ -129,8 +129,6 @@ export PS1="\[\033[38;5;0m\][\[\033[38;5;6m\]\u\[\033[39m\]@\[\033[38;5;12m\]\h\
 
 # Editor
 export EDITOR=vim
-# Startup file for python interactive interpreter
-export PYTHONSTARTUP=$HOME/.pythonrc
 
 
 # pyenv setup
