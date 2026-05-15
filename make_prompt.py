@@ -91,8 +91,21 @@ def colored(colornum, *contents, bg=False, forprompt=False):
 
 
 ps1_contents = ''.join([
+    # Nonprintable: set the window name for xterm
+    CODE.NONPRINT_START,
+    # Sends an "os command" to the xterm to set the window name.
+    r'\e]0;',
+    CODE.USERNAME,
+    '@',
+    CODE.HOSTNAME_SHORT,
+    ': ',
+    CODE.CWD_HOMEABBR,
+    # Ends the "os command"
+    r'\a',
+    CODE.NONPRINT_END,
+
     # First line: user, host, time, cwd
-    color_start(COLOR.BLACK, forprompt=True),
+    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
     '[',
     color_start(COLOR.CYAN, forprompt=True),
     CODE.USERNAME,
@@ -100,7 +113,7 @@ ps1_contents = ''.join([
     '@',
     color_start(COLOR.BLUE_HI, forprompt=True),
     CODE.HOSTNAME_SHORT,
-    color_start(COLOR.BLACK, forprompt=True),
+    CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
     '] ',
     CODE.TIME_24,
     ' ',
@@ -108,9 +121,11 @@ ps1_contents = ''.join([
     CODE.CWD_HOMEABBR,
     CODE.FMT_DEFAULT_FOREGROUND_FORPROMPT,
     CODE.FMT_DEFAULT_BACKGROUND_FORPROMPT,
+
     # Second (optional) line: git info
     r'\$(_git_info_line)',
     CODE.NEWLINE,
+
     # Third line: prompt marker
     '--> ',
     CODE.DOLLAR_OR_HASH,
