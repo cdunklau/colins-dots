@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-from __future__ import print_function
+#!/usr/bin/env python3
 import sys
 import os
 import errno
@@ -9,12 +8,24 @@ import shutil
 this_dir = os.path.dirname(os.path.abspath(__file__))
 home_dir = os.path.expanduser('~')
 
-dotfiles = ('.bashrc', '.vimrc', '.pythonrc', '.tmux.conf')
+dotfiles = ('.bashrc-custom', '.vimrc', '.pythonrc', '.tmux.conf')
 
 backup_suffix = '.bck'
 
 
 def main():
+    symlink_all()
+    if not check_bashrc_sources_custom():
+        print_stderr(
+            'WARNING: did not detect your .bashrc sources .bashrc-custom, '
+            'add this line to it: source "$HOME/.bashrc-custom"'
+        )
+        return 1
+
+    return 0
+
+
+def symlink_all():
     for dotfile in dotfiles:
         homedot = os.path.join(home_dir, dotfile)
         if nonlink(homedot):
@@ -41,6 +52,15 @@ def nonlink(dotfile):
 
 def print_stderr(*args):
     print(*args, file=sys.stderr)
+
+
+def check_bashrc_sources_custom():
+    with open(os.path.join(home_dir, '.bashrc'), encoding='utf-8') as fp:
+        for line in fp:
+            if line.startswith('source "$HOME/.bashrc-custom"'):
+                return True
+
+    return False
 
 
 if __name__ == '__main__':
