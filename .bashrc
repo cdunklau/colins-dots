@@ -146,3 +146,9 @@ HASKELL_INIT="$HOME/.ghcup/env"
 if [ -f "$HASKELL_INIT" ]; then
     source ${HASKELL_INIT}
 fi
+
+# Rust stuff
+RUST_INIT="$HOME/.cargo/env"
+if [ -f "$RUST_INIT" ]; then
+    source ${RUST_INIT}
+fi
