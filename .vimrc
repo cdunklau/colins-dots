@@ -100,3 +100,8 @@ set softtabstop=2
 set shiftwidth=2
 set syntax=yaml
 endfunction
+"turn off line limit marker for Markdown
+au BufNewFile,BufRead *.md call DoMarkdownCommands()
+function DoMarkdownCommands()
+set colorcolumn=
+endfunction
