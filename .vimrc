@@ -52,7 +52,8 @@ set foldnestmax=10
 set nofoldenable
 set foldlevel=1
 "80 char line limit marker
-execute "set colorcolumn=" . join(range(80, 200), ',')
+"execute "set colorcolumn=" . join(range(80, 200), ',')
+set colorcolumn=80,81,82
 highlight ColorColumn ctermbg=7
 "Map F5 to break current line to a max of 76 characters and indent same
 nmap <F5> 77<Bar>F r<CR>ddk]p
@@ -61,6 +62,11 @@ set tabstop=8
 set softtabstop=4
 set shiftwidth=4
 set expandtab
+"Python gets an 88-character line length
+au BufNewFile,BufRead *.py call DoPythonCommands()
+function DoPythonCommands()
+set colorcolumn=89,90,91
+endfunction
 "specifics for php, 3-space tabs
 au BufNewFile,BufRead *.php call DoPHPCommands()
 function DoPHPCommands()
