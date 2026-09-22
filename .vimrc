@@ -65,49 +65,49 @@ set expandtab
 "Python gets an 88-character line length
 au BufNewFile,BufRead *.py call DoPythonCommands()
 function DoPythonCommands()
-set colorcolumn=89,90,91
+setlocal colorcolumn=89,90,91
 endfunction
 "specifics for php, 3-space tabs
 au BufNewFile,BufRead *.php call DoPHPCommands()
 function DoPHPCommands()
-set softtabstop=3
-set shiftwidth=3
+setlocal softtabstop=3
+setlocal shiftwidth=3
 endfunction
 "specifics for html, xml, js, json, and css, 2-space tabs
 au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd,*.js,*.json,*.css,*.less call DoHTMLCommands()
 function DoHTMLCommands()
-set softtabstop=2
-set shiftwidth=2
+setlocal softtabstop=2
+setlocal shiftwidth=2
 endfunction
 "specifics for Makefiles, hard tabs
 au BufNewFile,BufRead Makefile call DoMakefileCommands()
 function DoMakefileCommands()
-set noexpandtab
-set tabstop=8
-set softtabstop=8
-set shiftwidth=8
+setlocal noexpandtab
+setlocal tabstop=8
+setlocal softtabstop=8
+setlocal shiftwidth=8
 endfunction
 "line wrapping for ReStructuredText
 au BufNewFile,BufRead *.rst call DoRSTCommands()
 function DoRSTCommands()
-set tabstop=8
-set softtabstop=4
-set shiftwidth=4
-set expandtab
-set tw=79
-set formatoptions+=t
+setlocal tabstop=8
+setlocal softtabstop=4
+setlocal shiftwidth=4
+setlocal expandtab
+setlocal tw=79
+setlocal formatoptions+=t
 endfunction
 "Apply Django syntax to .jinja and .jinja2 files
-au BufNewFile,BufRead *.jinja,*.jinja2 set filetype=django
+au BufNewFile,BufRead *.jinja,*.jinja2 setlocal filetype=django
 "sls files are salt states in yaml format
 au BufNewFile,BufRead *.sls,*.yml,*.yaml call DoYAMLCommands()
 function DoYAMLCommands()
-set softtabstop=2
-set shiftwidth=2
-set syntax=yaml
+setlocal softtabstop=2
+setlocal shiftwidth=2
+setlocal syntax=yaml
 endfunction
 "turn off line limit marker for Markdown
 au BufNewFile,BufRead *.md call DoMarkdownCommands()
 function DoMarkdownCommands()
-set colorcolumn=
+setlocal colorcolumn=
 endfunction
