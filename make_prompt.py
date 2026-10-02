@@ -25,7 +25,7 @@ default_prompt = ''.join([
 
 NONPRINT_START = r'\['
 NONPRINT_END = r'\]'
-CSI = r'\033['
+CSI = r'\033['  # AKA r'\e['
 
 
 def csi(*contents):
@@ -56,17 +56,18 @@ ESCAPE_DOLLAR_OR_HASH = r'\\$'
 
 ps1_contents = ''.join([
     # Nonprintable: set the window name for xterm
-    nonprint(
-        # Sends an "os command" to the xterm to set the window name.
-        r'\e]0;',
-        ESCAPE_USERNAME,
-        '@',
-        ESCAPE_HOSTNAME_SHORT,
-        ': ',
-        ESCAPE_CWD_HOMEABBR,
-        # Ends the "os command"
-        r'\a',
-    ),
+    #nonprint(
+    #    # Sends an "os command" to the xterm to set the window name.
+    #    r'\e]0;',
+    #    ESCAPE_USERNAME,
+    #    '@',
+    #    ESCAPE_HOSTNAME_SHORT,
+    #    ': ',
+    #    ESCAPE_CWD_HOMEABBR,
+    #    # Ends the "os command"
+    #    r'\a',
+    #),
+    r'\$(_maybe_set_default_terminal_title)',
 
     # First line: user, host, time, cwd
     NPCSI_RESET_BOLD_GREEN_FG,
@@ -112,7 +113,20 @@ r'''_git_info_line() {{
         CSI_RESET,
     ])
 )
+
+maybe_set_default_terminal_title_function = \
+r'''_maybe_set_default_terminal_title() {
+    if [ "${PREVENT_TERMWINDOWTITLE_DEFAULT_OVERWRITE}" != "1" ]; then
+        echo -ne "\001\033]0;${USER}@${HOSTNAME}: ${PWD/~/\~}\007\002"
+    fi
+};
+'''
+
 # TODO: Add the repo name (parent dir of .git or maybe two parents?)
+
+
+def print_ps1():
+    print(f'PS1="{ps1_contents}"')
 
 
 def show_effects():
@@ -120,6 +134,7 @@ def show_effects():
     try:
         bashinit_contents = '\n'.join([
             git_info_line_function,
+            maybe_set_default_terminal_title_function,
             'export PS1="{0}"\n'.format(ps1_contents),
         ])
         print('Writing init to', bashinit)
@@ -135,12 +150,18 @@ def show_effects():
 
 
 def main():
+    if len(sys.argv) == 1:
+        print_ps1()
+        return
+
     _, arg = sys.argv
     if arg == 'demo':
         show_effects()
-    else:
-        print('unknown arg "{0}"'.format(arg))
-        sys.exit(1)
+        return
+
+    print('unknown arg "{0}"'.format(arg))
+    sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
