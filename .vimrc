@@ -62,52 +62,66 @@ set tabstop=8
 set softtabstop=4
 set shiftwidth=4
 set expandtab
-"Python gets an 88-character line length
-au BufNewFile,BufRead *.py call DoPythonCommands()
-function DoPythonCommands()
-setlocal colorcolumn=89,90,91
-endfunction
-"specifics for php, 3-space tabs
-au BufNewFile,BufRead *.php call DoPHPCommands()
-function DoPHPCommands()
-setlocal softtabstop=3
-setlocal shiftwidth=3
-endfunction
-"specifics for html, xml, js, jsx, ts, tsx, json, and css, 2-space tabs
-au BufNewFile,BufRead *.html,*.htm,*.xml,*.xsd,*.js,*.jsx,*.ts,*.tsx,*.json,*.css,*.less call DoHTMLCommands()
-function DoHTMLCommands()
-setlocal softtabstop=2
-setlocal shiftwidth=2
-endfunction
-"specifics for Makefiles, hard tabs
-au BufNewFile,BufRead Makefile call DoMakefileCommands()
-function DoMakefileCommands()
-setlocal noexpandtab
-setlocal tabstop=8
-setlocal softtabstop=8
-setlocal shiftwidth=8
-endfunction
-"line wrapping for ReStructuredText
-au BufNewFile,BufRead *.rst call DoRSTCommands()
-function DoRSTCommands()
-setlocal tabstop=8
-setlocal softtabstop=4
-setlocal shiftwidth=4
-setlocal expandtab
-setlocal tw=79
-setlocal formatoptions+=t
-endfunction
-"Apply Django syntax to .jinja and .jinja2 files
-au BufNewFile,BufRead *.jinja,*.jinja2 setlocal filetype=django
-"sls files are salt states in yaml format
-au BufNewFile,BufRead *.sls,*.yml,*.yaml call DoYAMLCommands()
-function DoYAMLCommands()
-setlocal softtabstop=2
-setlocal shiftwidth=2
-setlocal syntax=yaml
-endfunction
-"turn off line limit marker for Markdown
-au BufNewFile,BufRead *.md call DoMarkdownCommands()
-function DoMarkdownCommands()
-setlocal colorcolumn=
-endfunction
+
+def SetSpaceIndentation(width: number): void
+  if width <= 0
+    throw $"EXCEPT:VALUEERROR('width={width} must be > 0!')"
+  endif
+  execute "setlocal" $"softtabstop={width}" $"shiftwidth={width}"
+enddef
+
+augroup myvimrc
+  " Remove all myvimrc autocommands, so I can just source this
+  autocmd!
+
+  "make that annoying conceal thing stop in Vim help, see *01.1*
+  au FileType help {
+    setlocal conceallevel=0
+    hi link HelpBar Normal
+    hi link HelpStar Normal
+  }
+
+  "Python gets an 88-character line length
+  "au BufNewFile,BufRead *.py call DoPythonCommands()
+  au FileType python setlocal colorcolumn=89,90,91
+
+  "3-space tabs for php
+  au FileType php call SetSpaceIndentation(3)
+
+  "2-space tabs and tag closing for html, xml, xsd
+  au FileType html,xml,xsd {
+    call SetSpaceIndentation(2)
+    # auto-close HTML and XML tags
+    inoremap <buffer> ><Tab> ><Esc>yyppli/<Esc>f<Space>df>A><Esc>kF<df>A<Tab>
+  }
+
+  "2-space tabs for js, jsx, ts, tsx, json, and css
+  au FileType javascript,javascriptreact,
+    \typescript,typescriptreact,
+    \json,css call SetSpaceIndentation(2)
+
+  "hard tabs for Makefiles
+  au FileType make setlocal
+    \ noexpandtab softtabstop=0 shiftwidth=0
+
+  "line wrapping for ReStructuredText
+  au FileType rst setlocal
+    \ tabstop=8
+    \ softtabstop=4
+    \ shiftwidth=4
+    \ expandtab
+    \ tw=79
+    \ formatoptions+=t
+
+  "Apply Django syntax to .jinja and .jinja2 files
+  au BufNewFile,BufRead *.jinja,*.jinja2 setlocal filetype=django
+
+  "sls files are salt states in yaml format
+  au BufNewFile,BufRead *.sls setlocal filetype=yaml
+
+  "2-space tabs for yaml (and sls)
+  au FileType yaml call SetSpaceIndentation(2)
+
+augroup END
+
+" vim: ts=8 sw=2 sts=2
