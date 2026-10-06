@@ -92,7 +92,7 @@ augroup myvimrc
   au FileType html,xml,xsd {
     call SetSpaceIndentation(2)
     # auto-close HTML and XML tags
-    inoremap <buffer> ><Tab> ><Esc>yyppli/<Esc>f<Space>df>A><Esc>kF<df>A<Tab>
+    inoremap <buffer> ><Tab> ><Esc>yypp:s/<\(\w\+\).*>/<\/\1><Enter>kdf>A<Tab>
   }
 
   "2-space tabs for js, jsx, ts, tsx, json, and css
