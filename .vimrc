@@ -88,8 +88,8 @@ augroup myvimrc
   "3-space tabs for php
   au FileType php call SetSpaceIndentation(3)
 
-  "2-space tabs and tag closing for html, xml, xsd
-  au FileType html,xml,xsd {
+  "2-space tabs and tag closing for html, xml, xsd, svg
+  au FileType html,xml,xsd,svg {
     call SetSpaceIndentation(2)
     # auto-close HTML and XML tags
     inoremap <buffer> ><Tab> ><Esc>yypp:s/<\(\w\+\).*>/<\/\1><Enter>kdf>A<Tab>
